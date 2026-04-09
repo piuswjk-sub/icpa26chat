@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>실시간 채팅</title>
+    <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; outline: none; }
+      #input:focus { outline: none; }
+      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; cursor: pointer; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages > li { padding: 0.5rem 1rem; }
+      #messages > li:nth-child(odd) { background: #efefef; }
+      /* 닉네임을 강조하는 스타일 추가 */
+      .nickname { font-weight: bold; color: #007bff; margin-right: 5px; }
+    </style>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" placeholder="메시지를 입력하세요..." /><button>전송</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+
+      var form = document.getElementById('form');
+      var input = document.getElementById('input');
+      var messages = document.getElementById('messages');
+
+      // 1. 페이지 접속 시 팝업을 띄워 닉네임을 물어봅니다. (입력 안 하면 '익명'으로 설정)
+      var myNickname = prompt("채팅방에서 사용할 닉네임을 입력하세요.") || "익명";
+
+      // 화면에 메시지를 추가하는 함수를 따로 만듭니다.
+      function appendMessage(nickname, text) {
+        var item = document.createElement('li');
+        item.innerHTML = `<span class="nickname">${nickname}</span>: ${text}`;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      // 2. 서버로부터 이전 채팅 기록을 받아서 화면에 그립니다.
+      socket.on('load history', function(rows) {
+        rows.forEach(function(row) {
+          appendMessage(row.nickname, row.content);
+        });
+      });
+
+      // 3. 전송 버튼을 누르면 닉네임과 메시지를 묶어서 서버에 보냅니다.
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (input.value) {
+          socket.emit('chat message', {
+            nickname: myNickname,
+            message: input.value
+          });
+          input.value = '';
+        }
+      });
+
+      // 4. 서버로부터 새 메시지를 받으면 화면에 추가합니다.
+      socket.on('chat message', function(data) {
+        appendMessage(data.nickname, data.message);
+      });
+    </script>
+  </body>
+</html>
