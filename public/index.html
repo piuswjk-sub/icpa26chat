@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-box">
+        <h2>Simple Chat</h2>
+        <input type="text" id="nickname-input" placeholder="닉네임 입력">
+        <input type="password" id="password-input" placeholder="관리자용 비밀번호 (선택)">
+        <button id="login-btn">입장하기</button>
+        <p id="error-msg"></p>
+    </div>
+</div>
+
+<div id="chat-container">
+    <div class="chat-header">
+        <span>Simple Chat</span>
+        <span id="user-count">접속자: 0명</span>
+    </div>
+    <div class="chat-messages" id="messages"></div>
+    <div id="typing-indicator" class="typing-indicator"></div>
+    <form class="chat-input-area" id="chat-form">
+        <input id="chat-input" placeholder="메시지 입력... (귓속말: /w 닉네임 내용)" autocomplete="off">
+        <button type="submit">전송</button>
+    </form>
+</div>
+
+<div id="sidebar">
+    <h3>접속 중인 유저</h3>
+    <div id="user-list"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/client.js"></script>
+</body>
+</html>
